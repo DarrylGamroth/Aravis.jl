@@ -15,7 +15,7 @@ end
 
 @testset "Aravis allocation-free acquisition" begin
     cam = open_camera()
-    stream = create_stream(cam)
+    stream = Stream(cam)
     pool = BufferPool(stream, 4, payload(cam))
     timeout_ns = UInt64(1_000_000_000)
 

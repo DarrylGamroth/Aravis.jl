@@ -31,7 +31,7 @@ gain!(cam, 0.0)
 
 ## Buffer pool and polled acquisition
 ```julia
-stream = create_stream(cam)
+stream = Stream(cam)
 pool = BufferPool(stream, 8, payload(cam))
 
 start_acquisition!(cam)

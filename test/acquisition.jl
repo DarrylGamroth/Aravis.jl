@@ -1,7 +1,7 @@
 @testset "Aravis fake camera acquisition" begin
     @test device_count() > 0
     cam = open_camera()
-    stream = create_stream(cam)
+    stream = Stream(cam)
     pool = BufferPool(stream, 4, payload(cam))
 
     try

@@ -38,7 +38,7 @@ function open_camera(index::Integer)
     return open_camera(id)
 end
 
-function create_stream(camera::Camera)
+function Stream(camera::Camera)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_camera_create_stream_full(camera.handle, C_NULL, C_NULL, C_NULL, err)
     _throw_if_gerror!(err)
