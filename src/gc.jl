@@ -118,6 +118,34 @@ function value!(node::GcNode, v::AbstractString)
     return nothing
 end
 
+function value(node::GcNode, ::Type{String})
+    return value(node)
+end
+
+function value(node::GcNode, ::Type{Bool})
+    return bool_value(node)
+end
+
+function value(node::GcNode, ::Type{T}) where {T<:Integer}
+    return convert(T, integer_value(node))
+end
+
+function value(node::GcNode, ::Type{T}) where {T<:AbstractFloat}
+    return convert(T, float_value(node))
+end
+
+function value!(node::GcNode, v::Bool)
+    return bool_value!(node, v)
+end
+
+function value!(node::GcNode, v::Integer)
+    return integer_value!(node, v)
+end
+
+function value!(node::GcNode, v::AbstractFloat)
+    return float_value!(node, v)
+end
+
 function integer_value(node::GcNode)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_value(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
@@ -216,3 +244,15 @@ function string_value!(node::GcNode, value::AbstractString)
     _throw_if_gerror!(err)
     return nothing
 end
+
+Base.getindex(genicam::Gc, name::AbstractString) = node(genicam, name)
+Base.getindex(genicam::Gc, name::Symbol) = node(genicam, string(name))
+
+Base.getindex(node::GcNode) = value(node)
+Base.getindex(node::GcNode, ::Type{T}) where {T} = value(node, T)
+Base.setindex!(node::GcNode, v) = (value!(node, v); node)
+
+Base.convert(::Type{Bool}, node::GcNode) = bool_value(node)
+Base.convert(::Type{T}, node::GcNode) where {T<:Integer} = convert(T, integer_value(node))
+Base.convert(::Type{T}, node::GcNode) where {T<:AbstractFloat} = convert(T, float_value(node))
+Base.convert(::Type{String}, node::GcNode) = value(node)

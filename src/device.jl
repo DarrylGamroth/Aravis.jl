@@ -149,3 +149,38 @@ function dup_register_feature_value(device::Device, feature::AbstractString)
     GLib.g_free(ptr)
     return data
 end
+
+function feature(device::Device, ::Type{Bool}, name::AbstractString)
+    return get_boolean_feature_value(device, name)
+end
+
+function feature(device::Device, ::Type{T}, name::AbstractString) where {T<:Integer}
+    return convert(T, get_integer_feature_value(device, name))
+end
+
+function feature(device::Device, ::Type{T}, name::AbstractString) where {T<:AbstractFloat}
+    return convert(T, get_float_feature_value(device, name))
+end
+
+function feature(device::Device, ::Type{String}, name::AbstractString)
+    return get_string_feature_value(device, name)
+end
+
+function feature!(device::Device, name::AbstractString, value::Bool)
+    return set_boolean_feature_value(device, name, value)
+end
+
+function feature!(device::Device, name::AbstractString, value::Integer)
+    return set_integer_feature_value(device, name, value)
+end
+
+function feature!(device::Device, name::AbstractString, value::AbstractFloat)
+    return set_float_feature_value(device, name, value)
+end
+
+function feature!(device::Device, name::AbstractString, value::AbstractString)
+    return set_string_feature_value(device, name, value)
+end
+
+Base.getindex(device::Device, name::AbstractString) = node(device, name)
+Base.getindex(device::Device, name::Symbol) = node(device, string(name))

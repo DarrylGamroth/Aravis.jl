@@ -65,11 +65,13 @@ end
             bounds = get_integer_feature_bounds(dev, "Width")
             @test width >= bounds[1]
             @test width <= bounds[2]
+            @test feature(dev, Int, "Width") == width
 
             gc = genicam(dev)
             width_node = node(gc, "Width")
             @test is_available(width_node)
             @test integer_value(width_node) == width
+            @test width_node[Int] == width
         finally
             Aravis.close(cam)
         end
