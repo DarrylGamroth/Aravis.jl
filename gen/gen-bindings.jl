@@ -1,6 +1,7 @@
 using Clang.Generators
 
 using Aravis_jll
+using Glib_jll
 
 cd(@__DIR__)
 
@@ -15,6 +16,11 @@ options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 args = get_default_args()
 push!(args, "-I$include_dir")
+
+glib_include = joinpath(Glib_jll.artifact_dir, "include", "glib-2.0")
+glib_lib_include = joinpath(Glib_jll.artifact_dir, "lib", "glib-2.0", "include")
+push!(args, "-I$glib_include")
+push!(args, "-I$glib_lib_include")
 
 headers = [
     joinpath(include_dir, "arv.h"),
