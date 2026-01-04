@@ -14,18 +14,22 @@
 - Node access mirrors BGAPI2.jl patterns.
 - Defer signals, GLib main loop, and async callbacks.
 
-## Phase 0: Prep
-- Confirm Aravis_jll provides libaravis and headers (or plan to vendor headers).
-- Identify required C headers and minimal public API surface.
-- Record required GLib/GObject functions for ref/unref and GError handling.
-- Lock target to Linux for initial implementation.
+## Phase 0: Prep (done)
+- Confirmed Aravis_jll provides libaravis + headers (0.8.35).
+- Identified required headers and initial public API surface.
+- Recorded GLib/GObject functions for ref/unref and GError handling.
+- Locked target to Linux for initial implementation.
 
-## Phase 1: Low-level bindings
+## Phase 1: Low-level bindings (done)
 - Generate raw C bindings (Clang.jl or manual ccall) for:
   - aravis core API (camera/device/stream/buffer/gc).
   - minimal GLib/GObject: g_object_ref, g_object_unref, g_object_get, g_object_set, g_error_free.
 - Keep raw bindings in `src/LibAravis.jl`.
 - Prefer `GLib_jll` as the source for GLib/GObject symbols.
+
+Status:
+- `gen/` added for Clang.jl generation; `src/LibAravis.jl` generated.
+- GLib helpers implemented in `src/glib.jl` using `Glib_jll`.
 
 ## V1 binding list (C symbols to cover)
 ### System and interface enumeration
@@ -96,12 +100,16 @@
 - g_object_ref, g_object_unref, g_object_get, g_object_set.
 - g_error_free, g_clear_error (if used), g_free, g_strfreev (for dup string arrays).
 
-## Phase 2: Core wrapper types
+## Phase 2: Core wrapper types (done)
 - Define Julia wrapper structs that hold `Ptr{T}` plus ownership flag.
 - Add finalizers for GObject ref/unref and explicit `close`/`destroy` methods.
 - Implement reusable per-object string buffers for getters (no allocs per call).
 
-## Phase 3: Buffer pool + zero-alloc acquisition
+Status:
+- Wrapper structs for Camera/Device/Stream/Buffer/Gc created with ownership handling.
+- Exceptions + GError handling implemented.
+
+## Phase 3: Buffer pool + zero-alloc acquisition (done)
 - Implement `Buffer` wrapper analogous to BGAPI2.Buffer:
   - Allow user-provided `Vector{UInt8}`.
   - Store the Julia buffer to keep it alive.
@@ -112,20 +120,28 @@
   - Hot loop uses `stream_timeout_pop_buffer` and `stream_push_buffer` with no allocations.
 - Provide an example polled acquisition loop using only pointers and reuse.
 
-## Phase 4: Device/camera configuration
+Status:
+- `BufferPool` implemented with preallocated buffers and polled pop/push API.
+- Stream thread helpers provided (`start_thread`/`stop_thread`).
+- Camera acquisition path used for 0.8.35.
+
+## Phase 4: Device/camera configuration (in progress)
 - Wrap common property accessors and GenICam node access via ArvDevice/ArvGc, following BGAPI2.jl node access patterns.
 - Provide a minimal feature API for setting exposure, gain, frame rate, etc.
 
-## Phase 5: Ergonomics + docs
+## Phase 5: Ergonomics + docs (pending)
 - Add a minimal user guide that mirrors BGAPI2.jl usage patterns.
 - Document thread-safety constraints and polling-only semantics.
 
-## Phase 6: Testing
+## Phase 6: Testing (in progress)
 - Add unit tests for:
   - wrapper construction + lifetime handling.
   - buffer pool creation and reuse.
   - polling loop with timeouts (mocked or minimal checks).
 - Integration tests use arv-fake-gv-camera.
+
+Status:
+- Integration test added using `arv-fake-gv-camera-0.8` with camera acquisition.
 
 ## Module and file layout (BGAPI2.jl style)
 - `src/Aravis.jl`: main module, exports, include order.
