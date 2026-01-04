@@ -45,14 +45,14 @@ function create_stream(camera::Camera)
     return Stream(ptr; owns=false)
 end
 
-function start_acquisition(camera::Camera)
+function start_acquisition!(camera::Camera)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_camera_start_acquisition(camera.handle, err)
     _throw_if_gerror!(err)
     return nothing
 end
 
-function stop_acquisition(camera::Camera)
+function stop_acquisition!(camera::Camera)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_camera_stop_acquisition(camera.handle, err)
     _throw_if_gerror!(err)
@@ -214,3 +214,6 @@ function gain_auto!(camera::Camera, mode::LibAravis.ArvAuto)
     _throw_if_gerror!(err)
     return nothing
 end
+
+start_acquisition(camera::Camera) = start_acquisition!(camera)
+stop_acquisition(camera::Camera) = stop_acquisition!(camera)

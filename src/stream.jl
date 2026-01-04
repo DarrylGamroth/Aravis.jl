@@ -34,32 +34,32 @@ function _buffer_from_ptr(pool::BufferPool, ptr::Ptr{LibAravis.ArvBuffer})
     return nothing
 end
 
-function push_buffer(stream::Stream, buffer::Buffer)
+function push_buffer!(stream::Stream, buffer::Buffer)
     LibAravis.arv_stream_push_buffer(stream.handle, buffer.handle)
     return nothing
 end
 
-function pop_buffer(stream::Stream)
+function pop_buffer!(stream::Stream)
     ptr = LibAravis.arv_stream_pop_buffer(stream.handle)
     return ptr == C_NULL ? nothing : ptr
 end
 
-function try_pop_buffer(stream::Stream)
+function try_pop_buffer!(stream::Stream)
     ptr = LibAravis.arv_stream_try_pop_buffer(stream.handle)
     return ptr == C_NULL ? nothing : ptr
 end
 
-function timeout_pop_buffer(stream::Stream, timeout_ns::UInt64)
+function timeout_pop_buffer!(stream::Stream, timeout_ns::UInt64)
     ptr = LibAravis.arv_stream_timeout_pop_buffer(stream.handle, timeout_ns)
     return ptr == C_NULL ? nothing : ptr
 end
 
-function start_thread(stream::Stream)
+function start_thread!(stream::Stream)
     LibAravis.arv_stream_start_thread(stream.handle)
     return nothing
 end
 
-function stop_thread(stream::Stream; delete_buffers::Bool=false)
+function stop_thread!(stream::Stream; delete_buffers::Bool=false)
     LibAravis.arv_stream_stop_thread(stream.handle, delete_buffers ? 1 : 0)
     return nothing
 end
@@ -72,7 +72,7 @@ function get_statistics(stream::Stream)
     return (completed[], failures[], underruns[])
 end
 
-function delete_buffers(stream::Stream)
+function delete_buffers!(stream::Stream)
     LibAravis.arv_stream_stop_thread(stream.handle, 1)
     return nothing
 end
@@ -82,7 +82,7 @@ function BufferPool(stream::Stream, n_buffers::Integer, buffer_size::Integer)
     for i in 1:n_buffers
         ptr = LibAravis.arv_buffer_new_allocate(buffer_size)
         buffers[i] = Buffer(ptr; owns=false)
-        push_buffer(stream, buffers[i])
+        push_buffer!(stream, buffers[i])
     end
     return BufferPool(stream, buffers, buffer_size)
 end
@@ -93,7 +93,7 @@ function BufferPool(stream::Stream, buffers::Vector{<:AbstractVector})
     buffer_size = 0
     for i in 1:n_buffers
         pool_buffers[i] = Buffer(buffers[i])
-        push_buffer(stream, pool_buffers[i])
+        push_buffer!(stream, pool_buffers[i])
         if i == 1
             buffer_size = sizeof(eltype(buffers[i])) * length(buffers[i])
         end
@@ -101,28 +101,40 @@ function BufferPool(stream::Stream, buffers::Vector{<:AbstractVector})
     return BufferPool(stream, pool_buffers, buffer_size)
 end
 
-function pop_buffer(pool::BufferPool)
+function pop_buffer!(pool::BufferPool)
     ptr = LibAravis.arv_stream_pop_buffer(pool.stream.handle)
     ptr == C_NULL && return nothing
     buf = _buffer_from_ptr(pool, ptr)
     return buf === nothing ? Buffer(ptr; owns=false) : buf
 end
 
-function try_pop_buffer(pool::BufferPool)
+function try_pop_buffer!(pool::BufferPool)
     ptr = LibAravis.arv_stream_try_pop_buffer(pool.stream.handle)
     ptr == C_NULL && return nothing
     buf = _buffer_from_ptr(pool, ptr)
     return buf === nothing ? Buffer(ptr; owns=false) : buf
 end
 
-function timeout_pop_buffer(pool::BufferPool, timeout_ns::UInt64)
+function timeout_pop_buffer!(pool::BufferPool, timeout_ns::UInt64)
     ptr = LibAravis.arv_stream_timeout_pop_buffer(pool.stream.handle, timeout_ns)
     ptr == C_NULL && return nothing
     buf = _buffer_from_ptr(pool, ptr)
     return buf === nothing ? Buffer(ptr; owns=false) : buf
 end
 
-function queue_buffer(pool::BufferPool, buffer::Buffer)
-    push_buffer(pool.stream, buffer)
+function queue_buffer!(pool::BufferPool, buffer::Buffer)
+    push_buffer!(pool.stream, buffer)
     return nothing
 end
+
+push_buffer(stream::Stream, buffer::Buffer) = push_buffer!(stream, buffer)
+pop_buffer(stream::Stream) = pop_buffer!(stream)
+try_pop_buffer(stream::Stream) = try_pop_buffer!(stream)
+timeout_pop_buffer(stream::Stream, timeout_ns::UInt64) = timeout_pop_buffer!(stream, timeout_ns)
+start_thread(stream::Stream) = start_thread!(stream)
+stop_thread(stream::Stream; delete_buffers::Bool=false) = stop_thread!(stream; delete_buffers=delete_buffers)
+delete_buffers(stream::Stream) = delete_buffers!(stream)
+pop_buffer(pool::BufferPool) = pop_buffer!(pool)
+try_pop_buffer(pool::BufferPool) = try_pop_buffer!(pool)
+timeout_pop_buffer(pool::BufferPool, timeout_ns::UInt64) = timeout_pop_buffer!(pool, timeout_ns)
+queue_buffer(pool::BufferPool, buffer::Buffer) = queue_buffer!(pool, buffer)

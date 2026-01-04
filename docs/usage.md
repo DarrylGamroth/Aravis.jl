@@ -34,13 +34,13 @@ gain!(cam, 0.0)
 stream = create_stream(cam)
 pool = BufferPool(stream, 8, payload(cam))
 
-start_acquisition(cam)
-buf = timeout_pop_buffer(pool, UInt64(1_000_000_000))
+start_acquisition!(cam)
+buf = timeout_pop_buffer!(pool, UInt64(1_000_000_000))
 if buf !== nothing
     # Use image_data_ptr! or data_ptr! to access bytes without allocations.
-    queue_buffer(pool, buf)
+    queue_buffer!(pool, buf)
 end
-stop_acquisition(cam)
+stop_acquisition!(cam)
 
 close(stream)
 close(cam)
