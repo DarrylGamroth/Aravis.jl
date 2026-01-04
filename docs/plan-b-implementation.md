@@ -134,11 +134,14 @@ Status:
 - Device feature accessors added (boolean/integer/float/string + register dup/set).
 - GenICam node access added via `GcNode` with typed getters/setters.
 
-## Phase 5: Ergonomics + docs (pending)
+## Phase 5: Ergonomics + docs (done)
 - Add a minimal user guide that mirrors BGAPI2.jl usage patterns.
 - Document thread-safety constraints and polling-only semantics.
 
-## Phase 6: Testing (in progress)
+Status:
+- Added `docs/usage.md` with polling-only guidance and examples.
+
+## Phase 6: Testing (done)
 - Add unit tests for:
   - wrapper construction + lifetime handling.
   - buffer pool creation and reuse.
@@ -147,6 +150,7 @@ Status:
 
 Status:
 - Integration test added using `arv-fake-gv-camera-0.8` with camera acquisition.
+- Feature and GenICam node access tests added against the fake camera.
 
 ## Module and file layout (BGAPI2.jl style)
 - `src/Aravis.jl`: main module, exports, include order.
