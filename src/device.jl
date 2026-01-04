@@ -32,35 +32,35 @@ function is_feature_implemented(device::Device, feature::AbstractString)
     return ok != 0
 end
 
-function get_boolean_feature_value(device::Device, feature::AbstractString)
+function boolean_feature_value(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_device_get_boolean_feature_value(device.handle, feature, err)
     _throw_if_gerror!(err)
     return value != 0
 end
 
-function set_boolean_feature_value(device::Device, feature::AbstractString, value::Bool)
+function boolean_feature_value!(device::Device, feature::AbstractString, value::Bool)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_device_set_boolean_feature_value(device.handle, feature, value ? 1 : 0, err)
     _throw_if_gerror!(err)
     return nothing
 end
 
-function get_integer_feature_value(device::Device, feature::AbstractString)
+function integer_feature_value(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_device_get_integer_feature_value(device.handle, feature, err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function set_integer_feature_value(device::Device, feature::AbstractString, value::Integer)
+function integer_feature_value!(device::Device, feature::AbstractString, value::Integer)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_device_set_integer_feature_value(device.handle, feature, Int64(value), err)
     _throw_if_gerror!(err)
     return nothing
 end
 
-function get_integer_feature_bounds(device::Device, feature::AbstractString)
+function integer_feature_bounds(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     min = Ref{LibAravis.gint64}()
     max = Ref{LibAravis.gint64}()
@@ -69,28 +69,28 @@ function get_integer_feature_bounds(device::Device, feature::AbstractString)
     return (Int64(min[]), Int64(max[]))
 end
 
-function get_integer_feature_increment(device::Device, feature::AbstractString)
+function integer_feature_increment(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_device_get_integer_feature_increment(device.handle, feature, err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function get_float_feature_value(device::Device, feature::AbstractString)
+function float_feature_value(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_device_get_float_feature_value(device.handle, feature, err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function set_float_feature_value(device::Device, feature::AbstractString, value::Real)
+function float_feature_value!(device::Device, feature::AbstractString, value::Real)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_device_set_float_feature_value(device.handle, feature, Float64(value), err)
     _throw_if_gerror!(err)
     return nothing
 end
 
-function get_float_feature_bounds(device::Device, feature::AbstractString)
+function float_feature_bounds(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     min = Ref{Cdouble}()
     max = Ref{Cdouble}()
@@ -99,14 +99,14 @@ function get_float_feature_bounds(device::Device, feature::AbstractString)
     return (Float64(min[]), Float64(max[]))
 end
 
-function get_float_feature_increment(device::Device, feature::AbstractString)
+function float_feature_increment(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_device_get_float_feature_increment(device.handle, feature, err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function get_string_feature_value(device::Device, feature::AbstractString)
+function string_feature_value(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_device_get_string_feature_value(device.handle, feature, err)
     _throw_if_gerror!(err)
@@ -114,7 +114,7 @@ function get_string_feature_value(device::Device, feature::AbstractString)
     return unsafe_string(ptr)
 end
 
-function set_string_feature_value(device::Device, feature::AbstractString, value::AbstractString)
+function string_feature_value!(device::Device, feature::AbstractString, value::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_device_set_string_feature_value(device.handle, feature, value, err)
     _throw_if_gerror!(err)
@@ -128,7 +128,7 @@ function execute_command(device::Device, feature::AbstractString)
     return nothing
 end
 
-function set_register_feature_value(device::Device, feature::AbstractString, data::AbstractVector{UInt8})
+function register_feature_value!(device::Device, feature::AbstractString, data::AbstractVector{UInt8})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     GC.@preserve data begin
         LibAravis.arv_device_set_register_feature_value(device.handle, feature, UInt64(length(data)), pointer(data), err)
@@ -137,7 +137,7 @@ function set_register_feature_value(device::Device, feature::AbstractString, dat
     return nothing
 end
 
-function dup_register_feature_value(device::Device, feature::AbstractString)
+function register_feature_value(device::Device, feature::AbstractString)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     length_ref = Ref{LibAravis.guint64}()
     ptr = LibAravis.arv_device_dup_register_feature_value(device.handle, feature, length_ref, err)
@@ -150,36 +150,56 @@ function dup_register_feature_value(device::Device, feature::AbstractString)
     return data
 end
 
+get_boolean_feature_value(device::Device, feature::AbstractString) = boolean_feature_value(device, feature)
+set_boolean_feature_value(device::Device, feature::AbstractString, value::Bool) =
+    boolean_feature_value!(device, feature, value)
+get_integer_feature_value(device::Device, feature::AbstractString) = integer_feature_value(device, feature)
+set_integer_feature_value(device::Device, feature::AbstractString, value::Integer) =
+    integer_feature_value!(device, feature, value)
+get_integer_feature_bounds(device::Device, feature::AbstractString) = integer_feature_bounds(device, feature)
+get_integer_feature_increment(device::Device, feature::AbstractString) = integer_feature_increment(device, feature)
+get_float_feature_value(device::Device, feature::AbstractString) = float_feature_value(device, feature)
+set_float_feature_value(device::Device, feature::AbstractString, value::Real) =
+    float_feature_value!(device, feature, value)
+get_float_feature_bounds(device::Device, feature::AbstractString) = float_feature_bounds(device, feature)
+get_float_feature_increment(device::Device, feature::AbstractString) = float_feature_increment(device, feature)
+get_string_feature_value(device::Device, feature::AbstractString) = string_feature_value(device, feature)
+set_string_feature_value(device::Device, feature::AbstractString, value::AbstractString) =
+    string_feature_value!(device, feature, value)
+set_register_feature_value(device::Device, feature::AbstractString, data::AbstractVector{UInt8}) =
+    register_feature_value!(device, feature, data)
+dup_register_feature_value(device::Device, feature::AbstractString) = register_feature_value(device, feature)
+
 function feature(device::Device, ::Type{Bool}, name::AbstractString)
-    return get_boolean_feature_value(device, name)
+    return boolean_feature_value(device, name)
 end
 
 function feature(device::Device, ::Type{T}, name::AbstractString) where {T<:Integer}
-    return convert(T, get_integer_feature_value(device, name))
+    return convert(T, integer_feature_value(device, name))
 end
 
 function feature(device::Device, ::Type{T}, name::AbstractString) where {T<:AbstractFloat}
-    return convert(T, get_float_feature_value(device, name))
+    return convert(T, float_feature_value(device, name))
 end
 
 function feature(device::Device, ::Type{String}, name::AbstractString)
-    return get_string_feature_value(device, name)
+    return string_feature_value(device, name)
 end
 
 function feature!(device::Device, name::AbstractString, value::Bool)
-    return set_boolean_feature_value(device, name, value)
+    return boolean_feature_value!(device, name, value)
 end
 
 function feature!(device::Device, name::AbstractString, value::Integer)
-    return set_integer_feature_value(device, name, value)
+    return integer_feature_value!(device, name, value)
 end
 
 function feature!(device::Device, name::AbstractString, value::AbstractFloat)
-    return set_float_feature_value(device, name, value)
+    return float_feature_value!(device, name, value)
 end
 
 function feature!(device::Device, name::AbstractString, value::AbstractString)
-    return set_string_feature_value(device, name, value)
+    return string_feature_value!(device, name, value)
 end
 
 Base.getindex(device::Device, name::AbstractString) = node(device, name)

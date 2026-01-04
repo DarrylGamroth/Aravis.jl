@@ -61,8 +61,8 @@ end
         try
             dev = device(cam)
             @test is_feature_available(dev, "Width")
-            width = get_integer_feature_value(dev, "Width")
-            bounds = get_integer_feature_bounds(dev, "Width")
+            width = integer_feature_value(dev, "Width")
+            bounds = integer_feature_bounds(dev, "Width")
             @test width >= bounds[1]
             @test width <= bounds[2]
             @test feature(dev, Int, "Width") == width
