@@ -65,3 +65,152 @@ function payload(camera::Camera)
     _throw_if_gerror!(err)
     return Int(size)
 end
+
+function device(camera::Camera)
+    ptr = LibAravis.arv_camera_get_device(camera.handle)
+    return Device(ptr; owns=false)
+end
+
+function set_region(camera::Camera, x::Integer, y::Integer, width::Integer, height::Integer)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_region(camera.handle, Int32(x), Int32(y), Int32(width), Int32(height), err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function region(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    x = Ref{LibAravis.gint}()
+    y = Ref{LibAravis.gint}()
+    width = Ref{LibAravis.gint}()
+    height = Ref{LibAravis.gint}()
+    LibAravis.arv_camera_get_region(camera.handle, x, y, width, height, err)
+    _throw_if_gerror!(err)
+    return (Int(x[]), Int(y[]), Int(width[]), Int(height[]))
+end
+
+function pixel_format(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    fmt = LibAravis.arv_camera_get_pixel_format(camera.handle, err)
+    _throw_if_gerror!(err)
+    return fmt
+end
+
+function pixel_format!(camera::Camera, fmt::LibAravis.ArvPixelFormat)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_pixel_format(camera.handle, fmt, err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function pixel_format!(camera::Camera, fmt::AbstractString)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_pixel_format_from_string(camera.handle, fmt, err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function pixel_format_string(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    ptr = LibAravis.arv_camera_get_pixel_format_as_string(camera.handle, err)
+    _throw_if_gerror!(err)
+    ptr == C_NULL && return ""
+    return unsafe_string(ptr)
+end
+
+function frame_rate(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    value = LibAravis.arv_camera_get_frame_rate(camera.handle, err)
+    _throw_if_gerror!(err)
+    return Float64(value)
+end
+
+function frame_rate!(camera::Camera, value::Real)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_frame_rate(camera.handle, Float64(value), err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function frame_rate_bounds(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    min = Ref{Cdouble}()
+    max = Ref{Cdouble}()
+    LibAravis.arv_camera_get_frame_rate_bounds(camera.handle, min, max, err)
+    _throw_if_gerror!(err)
+    return (Float64(min[]), Float64(max[]))
+end
+
+function exposure_time(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    value = LibAravis.arv_camera_get_exposure_time(camera.handle, err)
+    _throw_if_gerror!(err)
+    return Float64(value)
+end
+
+function exposure_time!(camera::Camera, value::Real)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_exposure_time(camera.handle, Float64(value), err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function exposure_time_bounds(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    min = Ref{Cdouble}()
+    max = Ref{Cdouble}()
+    LibAravis.arv_camera_get_exposure_time_bounds(camera.handle, min, max, err)
+    _throw_if_gerror!(err)
+    return (Float64(min[]), Float64(max[]))
+end
+
+function exposure_time_auto(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    value = LibAravis.arv_camera_get_exposure_time_auto(camera.handle, err)
+    _throw_if_gerror!(err)
+    return value
+end
+
+function exposure_time_auto!(camera::Camera, mode::LibAravis.ArvAuto)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_exposure_time_auto(camera.handle, mode, err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function gain(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    value = LibAravis.arv_camera_get_gain(camera.handle, err)
+    _throw_if_gerror!(err)
+    return Float64(value)
+end
+
+function gain!(camera::Camera, value::Real)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_gain(camera.handle, Float64(value), err)
+    _throw_if_gerror!(err)
+    return nothing
+end
+
+function gain_bounds(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    min = Ref{Cdouble}()
+    max = Ref{Cdouble}()
+    LibAravis.arv_camera_get_gain_bounds(camera.handle, min, max, err)
+    _throw_if_gerror!(err)
+    return (Float64(min[]), Float64(max[]))
+end
+
+function gain_auto(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    value = LibAravis.arv_camera_get_gain_auto(camera.handle, err)
+    _throw_if_gerror!(err)
+    return value
+end
+
+function gain_auto!(camera::Camera, mode::LibAravis.ArvAuto)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    LibAravis.arv_camera_set_gain_auto(camera.handle, mode, err)
+    _throw_if_gerror!(err)
+    return nothing
+end
