@@ -73,11 +73,12 @@ function BufferPool(stream::Stream, n_buffers::Integer, buffer_size::Integer)
     return BufferPool(stream, buffers, buffer_size)
 end
 
-function BufferPool(stream::Stream, buffers::Vector{<:AbstractVector})
+function BufferPool(stream::Stream, buffers::Vector{<:StridedVector{UInt8}})
     n_buffers = length(buffers)
     pool_buffers = Vector{Buffer}(undef, n_buffers)
     buffer_size = 0
     for i in 1:n_buffers
+        stride(buffers[i], 1) == 1 || throw(ArgumentError("All buffers must be contiguous"))
         pool_buffers[i] = Buffer(buffers[i])
         push_buffer!(stream, pool_buffers[i])
         if i == 1
