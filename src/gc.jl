@@ -212,21 +212,21 @@ function integer_value!(node::GcNode{<:Integer}, value::Integer)
     return _integer_value_unsafe!(node, value)
 end
 
-function integer_min(node::GcNode{<:Integer})
+function Base.minimum(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_min(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function integer_max(node::GcNode{<:Integer})
+function Base.maximum(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_max(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function integer_inc(node::GcNode{<:Integer})
+function increment(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_inc(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -255,21 +255,21 @@ function float_value!(node::GcNode{<:AbstractFloat}, value::Real)
     return _float_value_unsafe!(node, value)
 end
 
-function float_min(node::GcNode{<:AbstractFloat})
+function Base.minimum(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_min(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function float_max(node::GcNode{<:AbstractFloat})
+function Base.maximum(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_max(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function float_inc(node::GcNode{<:AbstractFloat})
+function increment(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_inc(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
