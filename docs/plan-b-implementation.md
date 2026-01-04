@@ -125,9 +125,14 @@ Status:
 - Stream thread helpers provided (`start_thread`/`stop_thread`).
 - Camera acquisition path used for 0.8.35.
 
-## Phase 4: Device/camera configuration (in progress)
+## Phase 4: Device/camera configuration (done)
 - Wrap common property accessors and GenICam node access via ArvDevice/ArvGc, following BGAPI2.jl node access patterns.
 - Provide a minimal feature API for setting exposure, gain, frame rate, etc.
+
+Status:
+- Camera config helpers added (region, pixel format, frame rate, exposure, gain).
+- Device feature accessors added (boolean/integer/float/string + register dup/set).
+- GenICam node access added via `GcNode` with typed getters/setters.
 
 ## Phase 5: Ergonomics + docs (pending)
 - Add a minimal user guide that mirrors BGAPI2.jl usage patterns.
