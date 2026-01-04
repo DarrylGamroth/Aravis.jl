@@ -11,6 +11,14 @@ function Stream(handle::Ptr{LibAravis.ArvStream}; owns::Bool=false)
     return obj
 end
 
+function close(stream::Stream)
+    if stream.handle != C_NULL
+        GLib.g_object_unref(Ptr{Cvoid}(stream.handle))
+        stream.handle = C_NULL
+    end
+    return nothing
+end
+
 mutable struct BufferPool
     stream::Stream
     buffers::Vector{Buffer}
@@ -46,19 +54,13 @@ function timeout_pop_buffer(stream::Stream, timeout_ns::UInt64)
     return ptr == C_NULL ? nothing : ptr
 end
 
-function start_acquisition(stream::Stream)
-    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
-    ok = LibAravis.arv_stream_start_acquisition(stream.handle, err)
-    _throw_if_gerror!(err)
-    ok == 0 && throw(ErrorException("Failed to start acquisition"))
+function start_thread(stream::Stream)
+    LibAravis.arv_stream_start_thread(stream.handle)
     return nothing
 end
 
-function stop_acquisition(stream::Stream)
-    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
-    ok = LibAravis.arv_stream_stop_acquisition(stream.handle, err)
-    _throw_if_gerror!(err)
-    ok == 0 && throw(ErrorException("Failed to stop acquisition"))
+function stop_thread(stream::Stream; delete_buffers::Bool=false)
+    LibAravis.arv_stream_stop_thread(stream.handle, delete_buffers ? 1 : 0)
     return nothing
 end
 
@@ -70,10 +72,16 @@ function get_statistics(stream::Stream)
     return (completed[], failures[], underruns[])
 end
 
+function delete_buffers(stream::Stream)
+    LibAravis.arv_stream_stop_thread(stream.handle, 1)
+    return nothing
+end
+
 function BufferPool(stream::Stream, n_buffers::Integer, buffer_size::Integer)
     buffers = Vector{Buffer}(undef, n_buffers)
     for i in 1:n_buffers
-        buffers[i] = Buffer(buffer_size)
+        ptr = LibAravis.arv_buffer_new_allocate(buffer_size)
+        buffers[i] = Buffer(ptr; owns=false)
         push_buffer(stream, buffers[i])
     end
     return BufferPool(stream, buffers, buffer_size)

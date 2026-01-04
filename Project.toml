@@ -5,8 +5,10 @@ authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
 
 [deps]
 Aravis_jll = "1ca07fb7-a562-5e16-809d-46c0b3e3215e"
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 Glib_jll = "7746bdde-850d-59dc-9ae8-88ece973131d"
 
 [compat]
 Aravis_jll = "0.8.35"
+CEnum = "0.5"
 Glib_jll = "2.86"

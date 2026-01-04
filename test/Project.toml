@@ -1,0 +1,3 @@
+[deps]
+Aravis_jll = "1ca07fb7-a562-5e16-809d-46c0b3e3215e"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

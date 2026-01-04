@@ -20,4 +20,4 @@ always_NUL_terminated_string = true
 opaque_as_mutable_struct = false
 
 [codegen.macro]
-macro_mode = "basic"
+macro_mode = "none"
