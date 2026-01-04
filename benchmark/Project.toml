@@ -1,0 +1,4 @@
+[deps]
+Aravis = "ee304b73-8645-4f5c-9c4f-2c1a0b3d5c52"
+Aravis_jll = "1ca07fb7-9b27-5f14-a625-00fa22e27c9b"
+BenchmarkTools = "6e4b80f9-93f8-5d43-9099-2f2d4b6b6d83"
