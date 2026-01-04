@@ -159,8 +159,20 @@ function value!(node::GcNode{Any}, v::AbstractFloat)
     return float_value!(node, v)
 end
 
-function value(node::GcNode{T}) where {T}
-    return _value_typed_unsafe(node, T)
+function value(node::GcNode{Bool})
+    return _bool_value_unsafe(node)
+end
+
+function value(node::GcNode{T}) where {T<:Integer}
+    return convert(T, _integer_value_unsafe(node))
+end
+
+function value(node::GcNode{T}) where {T<:AbstractFloat}
+    return convert(T, _float_value_unsafe(node))
+end
+
+function value(node::GcNode{String})
+    return _string_value_unsafe(node)
 end
 
 function value!(node::GcNode{T}, v::Bool) where {T<:Bool}
@@ -368,21 +380,6 @@ function string_value!(node::GcNode, value::AbstractString)
     return _string_value_unsafe!(node, value)
 end
 
-function _value_typed_unsafe(node::GcNode, ::Type{Bool})
-    return _bool_value_unsafe(node)
-end
-
-function _value_typed_unsafe(node::GcNode, ::Type{T}) where {T<:Integer}
-    return convert(T, _integer_value_unsafe(node))
-end
-
-function _value_typed_unsafe(node::GcNode, ::Type{T}) where {T<:AbstractFloat}
-    return convert(T, _float_value_unsafe(node))
-end
-
-function _value_typed_unsafe(node::GcNode, ::Type{String})
-    return _string_value_unsafe(node)
-end
 
 Base.getindex(genicam::Gc, name::AbstractString) = node(genicam, name)
 Base.getindex(genicam::Gc, name::Symbol) = node(genicam, string(name))
