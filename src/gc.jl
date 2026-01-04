@@ -274,7 +274,6 @@ function _bool_value_unsafe!(node::GcNode, value::Bool)
     return nothing
 end
 
-
 function _string_value_unsafe(node::GcNode)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_gc_string_get_value(Ptr{LibAravis.ArvGcString}(node.handle), err)
@@ -289,8 +288,6 @@ function _string_value_unsafe!(node::GcNode, value::AbstractString)
     _throw_if_gerror!(err)
     return nothing
 end
-
-
 
 Base.getindex(genicam::Gc, name::AbstractString) = node(genicam, name)
 Base.getindex(genicam::Gc, name::Symbol) = node(genicam, string(name))

@@ -19,8 +19,10 @@
         width_node = node(gc, "Width")
         @test is_available(width_node)
         @test value(width_node) == width
+        @test width_node[] == width
         @test width_node[Int] == width
-        value!(width_node, width)
+        width_node[] = width
+        @test width_node[] == width
     finally
         close(cam)
     end
