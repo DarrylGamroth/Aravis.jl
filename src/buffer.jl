@@ -29,3 +29,29 @@ function Buffer(user_buffer::StridedVector{T}) where {T}
     buf.external_buffer = user_buffer
     return buf
 end
+
+function status(buffer::Buffer)
+    LibAravis.arv_buffer_get_status(buffer.handle)
+end
+
+function payload_type(buffer::Buffer)
+    LibAravis.arv_buffer_get_payload_type(buffer.handle)
+end
+
+function timestamp(buffer::Buffer)
+    LibAravis.arv_buffer_get_timestamp(buffer.handle)
+end
+
+function frame_id(buffer::Buffer)
+    LibAravis.arv_buffer_get_frame_id(buffer.handle)
+end
+
+function data_ptr!(buffer::Buffer, size_ref::Base.RefValue{Csize_t})
+    ptr = LibAravis.arv_buffer_get_data(buffer.handle, size_ref)
+    return Ptr{Cvoid}(ptr)
+end
+
+function image_data_ptr!(buffer::Buffer, size_ref::Base.RefValue{Csize_t})
+    ptr = LibAravis.arv_buffer_get_image_data(buffer.handle, size_ref)
+    return Ptr{Cvoid}(ptr)
+end
