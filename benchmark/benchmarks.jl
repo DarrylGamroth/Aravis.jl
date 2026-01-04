@@ -42,13 +42,22 @@ with_fake_camera() do
         end
 
         println("Benchmark: timeout_pop_buffer! loop with BufferPool")
-        trial = @benchmark begin
-            buf = timeout_pop_buffer!(pool, $timeout_ns)
+        trial_timeout = @benchmark begin
+            buf = timeout_pop_buffer!($pool, $timeout_ns)
             if buf !== nothing
-                queue_buffer!(pool, buf)
+                queue_buffer!($pool, buf)
             end
         end samples=200 evals=1
-        display(trial)
+        display(trial_timeout)
+
+        println("Benchmark: try_pop_buffer! loop with BufferPool")
+        trial_try = @benchmark begin
+            buf = try_pop_buffer!($pool)
+            if buf !== nothing
+                queue_buffer!($pool, buf)
+            end
+        end samples=200 evals=1
+        display(trial_try)
     finally
         try
             stop_acquisition!(cam)
