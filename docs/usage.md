@@ -17,7 +17,7 @@ cam = open_camera()
 ## Configure the camera
 ```julia
 # Region
-set_region(cam, 0, 0, 1024, 1024)
+region!(cam, 0, 0, 1024, 1024)
 x, y, w, h = region(cam)
 
 # Pixel format

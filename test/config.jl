@@ -2,7 +2,7 @@
     cam = open_camera()
     try
         x, y, w, h = region(cam)
-        set_region(cam, x, y, w, h)
+        region!(cam, x, y, w, h)
         @test region(cam) == (x, y, w, h)
 
         fmt = pixel_format_string(cam)

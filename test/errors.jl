@@ -5,6 +5,10 @@
     try
         dev = device(cam)
         @test_throws Aravis.AravisError integer_feature_value(dev, "NoSuchFeature")
+
+        gc = genicam(dev)
+        width_node = node(gc, "Width")
+        @test_throws ArgumentError string_value(width_node)
     finally
         close(cam)
     end

@@ -149,7 +149,14 @@ function value!(node::GcNode, v::AbstractFloat)
     return float_value!(node, v)
 end
 
+function _require_node_type(node::GcNode, gtype::LibAravis.GType, typename::AbstractString)
+    ok = LibAravis.g_type_check_instance_is_a(Ptr{LibAravis.GTypeInstance}(node.handle), gtype)
+    ok != 0 || throw(ArgumentError("GcNode is not $typename"))
+    return nothing
+end
+
 function integer_value(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_value(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -157,6 +164,7 @@ function integer_value(node::GcNode)
 end
 
 function integer_value!(node::GcNode, value::Integer)
+    _require_node_type(node, LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_gc_integer_set_value(Ptr{LibAravis.ArvGcInteger}(node.handle), Int64(value), err)
     _throw_if_gerror!(err)
@@ -164,6 +172,7 @@ function integer_value!(node::GcNode, value::Integer)
 end
 
 function integer_min(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_min(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -171,6 +180,7 @@ function integer_min(node::GcNode)
 end
 
 function integer_max(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_max(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -178,6 +188,7 @@ function integer_max(node::GcNode)
 end
 
 function integer_inc(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_inc(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -185,6 +196,7 @@ function integer_inc(node::GcNode)
 end
 
 function float_value(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_value(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
@@ -192,6 +204,7 @@ function float_value(node::GcNode)
 end
 
 function float_value!(node::GcNode, value::Real)
+    _require_node_type(node, LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_gc_float_set_value(Ptr{LibAravis.ArvGcFloat}(node.handle), Float64(value), err)
     _throw_if_gerror!(err)
@@ -199,6 +212,7 @@ function float_value!(node::GcNode, value::Real)
 end
 
 function float_min(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_min(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
@@ -206,6 +220,7 @@ function float_min(node::GcNode)
 end
 
 function float_max(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_max(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
@@ -213,6 +228,7 @@ function float_max(node::GcNode)
 end
 
 function float_inc(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_inc(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
@@ -220,6 +236,7 @@ function float_inc(node::GcNode)
 end
 
 function bool_value(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_boolean_get_type(), "ArvGcBoolean")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_boolean_get_value(Ptr{LibAravis.ArvGcBoolean}(node.handle), err)
     _throw_if_gerror!(err)
@@ -227,6 +244,7 @@ function bool_value(node::GcNode)
 end
 
 function bool_value!(node::GcNode, value::Bool)
+    _require_node_type(node, LibAravis.arv_gc_boolean_get_type(), "ArvGcBoolean")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_gc_boolean_set_value(Ptr{LibAravis.ArvGcBoolean}(node.handle), value ? 1 : 0, err)
     _throw_if_gerror!(err)
@@ -234,6 +252,7 @@ function bool_value!(node::GcNode, value::Bool)
 end
 
 function string_value(node::GcNode)
+    _require_node_type(node, LibAravis.arv_gc_string_get_type(), "ArvGcString")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_gc_string_get_value(Ptr{LibAravis.ArvGcString}(node.handle), err)
     _throw_if_gerror!(err)
@@ -242,6 +261,7 @@ function string_value(node::GcNode)
 end
 
 function string_value!(node::GcNode, value::AbstractString)
+    _require_node_type(node, LibAravis.arv_gc_string_get_type(), "ArvGcString")
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_gc_string_set_value(Ptr{LibAravis.ArvGcString}(node.handle), value, err)
     _throw_if_gerror!(err)

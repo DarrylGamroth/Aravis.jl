@@ -71,7 +71,7 @@ function device(camera::Camera)
     return Device(ptr; owns=false)
 end
 
-function set_region(camera::Camera, x::Integer, y::Integer, width::Integer, height::Integer)
+function region!(camera::Camera, x::Integer, y::Integer, width::Integer, height::Integer)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     LibAravis.arv_camera_set_region(camera.handle, Int32(x), Int32(y), Int32(width), Int32(height), err)
     _throw_if_gerror!(err)

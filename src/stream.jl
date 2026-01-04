@@ -39,20 +39,6 @@ function push_buffer!(stream::Stream, buffer::Buffer)
     return nothing
 end
 
-function pop_buffer!(stream::Stream)
-    ptr = LibAravis.arv_stream_pop_buffer(stream.handle)
-    return ptr == C_NULL ? nothing : ptr
-end
-
-function try_pop_buffer!(stream::Stream)
-    ptr = LibAravis.arv_stream_try_pop_buffer(stream.handle)
-    return ptr == C_NULL ? nothing : ptr
-end
-
-function timeout_pop_buffer!(stream::Stream, timeout_ns::UInt64)
-    ptr = LibAravis.arv_stream_timeout_pop_buffer(stream.handle, timeout_ns)
-    return ptr == C_NULL ? nothing : ptr
-end
 
 function start_thread!(stream::Stream)
     LibAravis.arv_stream_start_thread(stream.handle)
@@ -96,6 +82,9 @@ function BufferPool(stream::Stream, buffers::Vector{<:AbstractVector})
         push_buffer!(stream, pool_buffers[i])
         if i == 1
             buffer_size = sizeof(eltype(buffers[i])) * length(buffers[i])
+        else
+            this_size = sizeof(eltype(buffers[i])) * length(buffers[i])
+            this_size == buffer_size || throw(ArgumentError("All buffers must have the same size"))
         end
     end
     return BufferPool(stream, pool_buffers, buffer_size)
