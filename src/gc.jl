@@ -112,12 +112,16 @@ function actual_access_mode(node::GcNode)
     LibAravis.arv_gc_feature_node_get_actual_access_mode(Ptr{LibAravis.ArvGcFeatureNode}(node.handle))
 end
 
-function value(node::GcNode{Any})
+function as_string(node::GcNode)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_gc_feature_node_get_value_as_string(Ptr{LibAravis.ArvGcFeatureNode}(node.handle), err)
     _throw_if_gerror!(err)
     ptr == C_NULL && return ""
     return unsafe_string(ptr)
+end
+
+function value(node::GcNode{Any})
+    return as_string(node)
 end
 
 function value!(node::GcNode{Any}, v::AbstractString)
@@ -390,4 +394,5 @@ Base.setindex!(node::GcNode, v) = (value!(node, v); node)
 Base.convert(::Type{Bool}, node::GcNode) = bool_value(node)
 Base.convert(::Type{T}, node::GcNode) where {T<:Integer} = convert(T, integer_value(node))
 Base.convert(::Type{T}, node::GcNode) where {T<:AbstractFloat} = convert(T, float_value(node))
-Base.convert(::Type{String}, node::GcNode) = value(node)
+Base.convert(::Type{String}, node::GcNode{Any}) = as_string(node)
+Base.convert(::Type{String}, node::GcNode{T}) where {T} = string(value(node))
