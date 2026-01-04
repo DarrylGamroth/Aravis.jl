@@ -11,7 +11,7 @@ function Stream(handle::Ptr{LibAravis.ArvStream}; owns::Bool=false)
     return obj
 end
 
-function close(stream::Stream)
+function Base.close(stream::Stream)
     if stream.handle != C_NULL
         GLib.g_object_unref(Ptr{Cvoid}(stream.handle))
         stream.handle = C_NULL

@@ -17,7 +17,7 @@
             stop_acquisition!(cam)
         catch
         end
-        Aravis.close(stream)
-        Aravis.close(cam)
+        close(stream)
+        close(cam)
     end
 end

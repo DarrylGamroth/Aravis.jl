@@ -8,7 +8,7 @@ function isopen(obj::ArvObject)
     obj.handle != C_NULL
 end
 
-function close(obj::ArvObject)
+function Base.close(obj::ArvObject)
     if obj.handle != C_NULL && obj.owns
         GLib.g_object_unref(Ptr{Cvoid}(obj.handle))
         obj.handle = C_NULL

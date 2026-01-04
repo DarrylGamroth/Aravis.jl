@@ -15,6 +15,6 @@
         @test integer_value(width_node) == width
         @test width_node[Int] == width
     finally
-        Aravis.close(cam)
+        close(cam)
     end
 end
