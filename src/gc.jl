@@ -19,7 +19,8 @@ end
 
 function GcNode(handle::Ptr{LibAravis.ArvGcNode}; owns::Bool=false)
     _check_ptr(handle, "ArvGcNode")
-    obj = GcNode{Any}(handle, owns, Vector{UInt8}(undef, 64))
+    T = _gcnode_detect_type(handle)
+    obj = GcNode{T}(handle, owns, Vector{UInt8}(undef, 64))
     _register_finalizer!(obj)
     return obj
 end
@@ -147,18 +148,6 @@ function value(node::GcNode, ::Type{T}) where {T<:AbstractFloat}
     return convert(T, float_value(node))
 end
 
-function value!(node::GcNode{Any}, v::Bool)
-    return bool_value!(node, v)
-end
-
-function value!(node::GcNode{Any}, v::Integer)
-    return integer_value!(node, v)
-end
-
-function value!(node::GcNode{Any}, v::AbstractFloat)
-    return float_value!(node, v)
-end
-
 function value(node::GcNode{Bool})
     return _bool_value_unsafe(node)
 end
@@ -175,22 +164,22 @@ function value(node::GcNode{String})
     return _string_value_unsafe(node)
 end
 
-function value!(node::GcNode{T}, v::Bool) where {T<:Bool}
+function value!(node::GcNode{Bool}, v::Bool)
     _bool_value_unsafe!(node, v)
     return nothing
 end
 
-function value!(node::GcNode{T}, v::Integer) where {T<:Integer}
+function value!(node::GcNode{T}, v::T) where {T<:Integer}
     _integer_value_unsafe!(node, v)
     return nothing
 end
 
-function value!(node::GcNode{T}, v::AbstractFloat) where {T<:AbstractFloat}
+function value!(node::GcNode{T}, v::T) where {T<:AbstractFloat}
     _float_value_unsafe!(node, v)
     return nothing
 end
 
-function value!(node::GcNode{T}, v::AbstractString) where {T<:String}
+function value!(node::GcNode{String}, v::AbstractString)
     _string_value_unsafe!(node, v)
     return nothing
 end
@@ -221,6 +210,15 @@ function _require_node_type(node::GcNode, gtype::LibAravis.GType, typename::Abst
     return nothing
 end
 
+function _gcnode_detect_type(handle::Ptr{LibAravis.ArvGcNode})
+    ptr = Ptr{LibAravis.GTypeInstance}(handle)
+    LibAravis.g_type_check_instance_is_a(ptr, LibAravis.arv_gc_boolean_get_type()) != 0 && return Bool
+    LibAravis.g_type_check_instance_is_a(ptr, LibAravis.arv_gc_integer_get_type()) != 0 && return Int64
+    LibAravis.g_type_check_instance_is_a(ptr, LibAravis.arv_gc_float_get_type()) != 0 && return Float64
+    LibAravis.g_type_check_instance_is_a(ptr, LibAravis.arv_gc_string_get_type()) != 0 && return String
+    return Any
+end
+
 function _integer_value_unsafe(node::GcNode)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_value(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
@@ -235,39 +233,29 @@ function _integer_value_unsafe!(node::GcNode, value::Integer)
     return nothing
 end
 
-function integer_value(node::GcNode)
-    gtype, typename = _gcnode_type_info(Int)
-    _require_node_type(node, gtype, typename)
+function integer_value(node::GcNode{<:Integer})
     return _integer_value_unsafe(node)
 end
 
-function integer_value!(node::GcNode, value::Integer)
-    gtype, typename = _gcnode_type_info(Int)
-    _require_node_type(node, gtype, typename)
+function integer_value!(node::GcNode{<:Integer}, value::Integer)
     return _integer_value_unsafe!(node, value)
 end
 
-function integer_min(node::GcNode)
-    gtype, typename = _gcnode_type_info(Int)
-    _require_node_type(node, gtype, typename)
+function integer_min(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_min(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function integer_max(node::GcNode)
-    gtype, typename = _gcnode_type_info(Int)
-    _require_node_type(node, gtype, typename)
+function integer_max(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_max(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
     return Int64(value)
 end
 
-function integer_inc(node::GcNode)
-    gtype, typename = _gcnode_type_info(Int)
-    _require_node_type(node, gtype, typename)
+function integer_inc(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_inc(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
     _throw_if_gerror!(err)
@@ -288,39 +276,29 @@ function _float_value_unsafe!(node::GcNode, value::Real)
     return nothing
 end
 
-function float_value(node::GcNode)
-    gtype, typename = _gcnode_type_info(Float64)
-    _require_node_type(node, gtype, typename)
+function float_value(node::GcNode{<:AbstractFloat})
     return _float_value_unsafe(node)
 end
 
-function float_value!(node::GcNode, value::Real)
-    gtype, typename = _gcnode_type_info(Float64)
-    _require_node_type(node, gtype, typename)
+function float_value!(node::GcNode{<:AbstractFloat}, value::Real)
     return _float_value_unsafe!(node, value)
 end
 
-function float_min(node::GcNode)
-    gtype, typename = _gcnode_type_info(Float64)
-    _require_node_type(node, gtype, typename)
+function float_min(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_min(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function float_max(node::GcNode)
-    gtype, typename = _gcnode_type_info(Float64)
-    _require_node_type(node, gtype, typename)
+function float_max(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_max(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
     return Float64(value)
 end
 
-function float_inc(node::GcNode)
-    gtype, typename = _gcnode_type_info(Float64)
-    _require_node_type(node, gtype, typename)
+function float_inc(node::GcNode{<:AbstractFloat})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_float_get_inc(Ptr{LibAravis.ArvGcFloat}(node.handle), err)
     _throw_if_gerror!(err)
@@ -341,15 +319,11 @@ function _bool_value_unsafe!(node::GcNode, value::Bool)
     return nothing
 end
 
-function bool_value(node::GcNode)
-    gtype, typename = _gcnode_type_info(Bool)
-    _require_node_type(node, gtype, typename)
+function bool_value(node::GcNode{Bool})
     return _bool_value_unsafe(node)
 end
 
-function bool_value!(node::GcNode, value::Bool)
-    gtype, typename = _gcnode_type_info(Bool)
-    _require_node_type(node, gtype, typename)
+function bool_value!(node::GcNode{Bool}, value::Bool)
     return _bool_value_unsafe!(node, value)
 end
 
@@ -368,15 +342,11 @@ function _string_value_unsafe!(node::GcNode, value::AbstractString)
     return nothing
 end
 
-function string_value(node::GcNode)
-    gtype, typename = _gcnode_type_info(String)
-    _require_node_type(node, gtype, typename)
+function string_value(node::GcNode{String})
     return _string_value_unsafe(node)
 end
 
-function string_value!(node::GcNode, value::AbstractString)
-    gtype, typename = _gcnode_type_info(String)
-    _require_node_type(node, gtype, typename)
+function string_value!(node::GcNode{String}, value::AbstractString)
     return _string_value_unsafe!(node, value)
 end
 
@@ -388,8 +358,8 @@ Base.getindex(node::GcNode) = value(node)
 Base.getindex(node::GcNode, ::Type{T}) where {T} = value(node, T)
 Base.setindex!(node::GcNode, v) = (value!(node, v); node)
 
-Base.convert(::Type{Bool}, node::GcNode) = bool_value(node)
-Base.convert(::Type{T}, node::GcNode) where {T<:Integer} = convert(T, integer_value(node))
-Base.convert(::Type{T}, node::GcNode) where {T<:AbstractFloat} = convert(T, float_value(node))
+Base.convert(::Type{Bool}, node::GcNode{Bool}) = bool_value(node)
+Base.convert(::Type{T}, node::GcNode{<:Integer}) where {T<:Integer} = convert(T, integer_value(node))
+Base.convert(::Type{T}, node::GcNode{<:AbstractFloat}) where {T<:AbstractFloat} = convert(T, float_value(node))
 Base.convert(::Type{String}, node::GcNode{Any}) = as_string(node)
 Base.convert(::Type{String}, node::GcNode{T}) where {T} = string(value(node))
