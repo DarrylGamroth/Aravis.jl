@@ -150,25 +150,6 @@ function register_feature_value(device::Device, feature::AbstractString)
     return data
 end
 
-get_boolean_feature_value(device::Device, feature::AbstractString) = boolean_feature_value(device, feature)
-set_boolean_feature_value(device::Device, feature::AbstractString, value::Bool) =
-    boolean_feature_value!(device, feature, value)
-get_integer_feature_value(device::Device, feature::AbstractString) = integer_feature_value(device, feature)
-set_integer_feature_value(device::Device, feature::AbstractString, value::Integer) =
-    integer_feature_value!(device, feature, value)
-get_integer_feature_bounds(device::Device, feature::AbstractString) = integer_feature_bounds(device, feature)
-get_integer_feature_increment(device::Device, feature::AbstractString) = integer_feature_increment(device, feature)
-get_float_feature_value(device::Device, feature::AbstractString) = float_feature_value(device, feature)
-set_float_feature_value(device::Device, feature::AbstractString, value::Real) =
-    float_feature_value!(device, feature, value)
-get_float_feature_bounds(device::Device, feature::AbstractString) = float_feature_bounds(device, feature)
-get_float_feature_increment(device::Device, feature::AbstractString) = float_feature_increment(device, feature)
-get_string_feature_value(device::Device, feature::AbstractString) = string_feature_value(device, feature)
-set_string_feature_value(device::Device, feature::AbstractString, value::AbstractString) =
-    string_feature_value!(device, feature, value)
-set_register_feature_value(device::Device, feature::AbstractString, data::AbstractVector{UInt8}) =
-    register_feature_value!(device, feature, data)
-dup_register_feature_value(device::Device, feature::AbstractString) = register_feature_value(device, feature)
 
 function feature(device::Device, ::Type{Bool}, name::AbstractString)
     return boolean_feature_value(device, name)

@@ -214,6 +214,3 @@ function gain_auto!(camera::Camera, mode::LibAravis.ArvAuto)
     _throw_if_gerror!(err)
     return nothing
 end
-
-start_acquisition(camera::Camera) = start_acquisition!(camera)
-stop_acquisition(camera::Camera) = stop_acquisition!(camera)

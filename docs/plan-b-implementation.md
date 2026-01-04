@@ -9,7 +9,7 @@
 
 ## Scope
 - Wrap core Aravis objects: ArvCamera, ArvDevice, ArvStream, ArvBuffer, ArvGc.
-- Support synchronous/polled acquisition using stream_timeout_pop_buffer / try_pop_buffer.
+- Support synchronous/polled acquisition using `timeout_pop_buffer!` / `try_pop_buffer!`.
 - API maps directly to Aravis, using idiomatic Julia naming and module namespaces modeled after BGAPI2.jl.
 - Node access mirrors BGAPI2.jl patterns.
 - Defer signals, GLib main loop, and async callbacks.
@@ -122,7 +122,7 @@ Status:
 
 Status:
 - `BufferPool` implemented with preallocated buffers and polled pop/push API.
-- Stream thread helpers provided (`start_thread`/`stop_thread`).
+- Stream thread helpers provided (`start_thread!`/`stop_thread!`).
 - Camera acquisition path used for 0.8.35.
 
 ## Phase 4: Device/camera configuration (done)

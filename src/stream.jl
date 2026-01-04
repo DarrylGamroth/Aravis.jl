@@ -126,15 +126,3 @@ function queue_buffer!(pool::BufferPool, buffer::Buffer)
     push_buffer!(pool.stream, buffer)
     return nothing
 end
-
-push_buffer(stream::Stream, buffer::Buffer) = push_buffer!(stream, buffer)
-pop_buffer(stream::Stream) = pop_buffer!(stream)
-try_pop_buffer(stream::Stream) = try_pop_buffer!(stream)
-timeout_pop_buffer(stream::Stream, timeout_ns::UInt64) = timeout_pop_buffer!(stream, timeout_ns)
-start_thread(stream::Stream) = start_thread!(stream)
-stop_thread(stream::Stream; delete_buffers::Bool=false) = stop_thread!(stream; delete_buffers=delete_buffers)
-delete_buffers(stream::Stream) = delete_buffers!(stream)
-pop_buffer(pool::BufferPool) = pop_buffer!(pool)
-try_pop_buffer(pool::BufferPool) = try_pop_buffer!(pool)
-timeout_pop_buffer(pool::BufferPool, timeout_ns::UInt64) = timeout_pop_buffer!(pool, timeout_ns)
-queue_buffer(pool::BufferPool, buffer::Buffer) = queue_buffer!(pool, buffer)

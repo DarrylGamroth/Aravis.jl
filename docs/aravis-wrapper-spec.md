@@ -64,7 +64,7 @@
 - Device discovery and open (interfaces, camera list, open by ID).
 - Camera configuration (features/properties via ArvDevice/ArvGc).
 - Stream setup and buffer management (create stream, push buffers).
-- Acquisition loop using stream_timeout_pop_buffer or try_pop_buffer.
+- Acquisition loop using `timeout_pop_buffer!` or `try_pop_buffer!`.
 - Buffer inspection and metadata access (timestamp, payload type).
 
 ### Steps
