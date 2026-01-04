@@ -39,16 +39,19 @@ function node(device::Device, name::AbstractString)
     return GcNode(ptr; owns=false)
 end
 
-function gc_buffer(genicam::Gc)
+function buffer(genicam::Gc)
     ptr = LibAravis.arv_gc_get_buffer(genicam.handle)
     ptr == C_NULL && return nothing
     return Buffer(ptr; owns=false)
 end
 
-function gc_buffer!(genicam::Gc, buffer::Buffer)
+function buffer!(genicam::Gc, buffer::Buffer)
     LibAravis.arv_gc_set_buffer(genicam.handle, buffer.handle)
     return nothing
 end
+
+gc_buffer(genicam::Gc) = buffer(genicam)
+gc_buffer!(genicam::Gc, buf::Buffer) = buffer!(genicam, buf)
 
 function name(node::GcNode)
     ptr = LibAravis.arv_gc_feature_node_get_name(Ptr{LibAravis.ArvGcFeatureNode}(node.handle))
