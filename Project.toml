@@ -1,6 +1,6 @@
 name = "Aravis"
 uuid = "ee304b73-0f67-4038-8e67-62078cd066f9"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
 
 [deps]

@@ -11,6 +11,10 @@ function Gc(handle::Ptr{LibAravis.ArvGc}; owns::Bool=false)
     return obj
 end
 
+function Base.show(io::IO, ::MIME"text/plain", genicam::Gc)
+    print(io, "GenICam")
+end
+
 mutable struct GcNode{T} <: ArvObject
     handle::Ptr{LibAravis.ArvGcNode}
     owns::Bool
@@ -27,6 +31,46 @@ mutable struct GcNode{T} <: ArvObject
 end
 
 Base.eltype(::GcNode{T}) where {T} = T
+
+function Base.show(io::IO, ::MIME"text/plain", node::GcNode{T}) where {T}
+    node_name = ""
+    node_display = ""
+    node_desc = ""
+    node_value = ""
+    available = false
+    implemented = false
+    locked = false
+    imposed = 0
+    actual = 0
+    try
+        node_name = name(node)
+        node_display = display_name(node)
+        node_desc = description(node)
+    catch
+    end
+    try
+        node_value = string(value(node))
+    catch
+    end
+    try
+        available = is_available(node)
+        implemented = is_implemented(node)
+        locked = is_locked(node)
+        imposed = imposed_access_mode(node)
+        actual = actual_access_mode(node)
+    catch
+    end
+    print(io, "GcNode: ", node_name)
+    print(io, " (", node_display, ")")
+    print(io, "\n  Type: ", T)
+    print(io, "\n  Description: ", node_desc)
+    print(io, "\n  Available: ", available)
+    print(io, "\n  Implemented: ", implemented)
+    print(io, "\n  Locked: ", locked)
+    print(io, "\n  Imposed Access Mode: ", imposed)
+    print(io, "\n  Actual Access Mode: ", actual)
+    print(io, "\n  Value: ", node_value)
+end
 
 function genicam(device::Device)
     ptr = LibAravis.arv_device_get_genicam(device.handle)

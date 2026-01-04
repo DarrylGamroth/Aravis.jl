@@ -11,6 +11,47 @@ function Camera(handle::Ptr{LibAravis.ArvCamera}; owns::Bool=false)
     return obj
 end
 
+function device_id(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    ptr = LibAravis.arv_camera_get_device_id(camera.handle, err)
+    _throw_if_gerror!(err)
+    ptr == C_NULL && return ""
+    return unsafe_string(ptr)
+end
+
+function serial_number(camera::Camera)
+    err = Ref{Ptr{LibAravis.GError}}(C_NULL)
+    ptr = LibAravis.arv_camera_get_device_serial_number(camera.handle, err)
+    _throw_if_gerror!(err)
+    ptr == C_NULL && return ""
+    return unsafe_string(ptr)
+end
+
+function Base.show(io::IO, ::MIME"text/plain", camera::Camera)
+    id = ""
+    serial = ""
+    vendor = ""
+    model = ""
+    try
+        id = device_id(camera)
+    catch
+    end
+    try
+        serial = serial_number(camera)
+    catch
+    end
+    try
+        dev = device(camera)
+        vendor = string_feature_value(dev, "DeviceVendorName")
+        model = string_feature_value(dev, "DeviceModelName")
+    catch
+    end
+    println(io, "Camera: ", id)
+    println(io, "  Vendor: ", vendor)
+    println(io, "  Model: ", model)
+    println(io, "  Serial Number: ", serial)
+end
+
 function open_camera()
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_camera_new(C_NULL, err)

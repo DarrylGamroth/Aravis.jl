@@ -11,6 +11,25 @@ function Device(handle::Ptr{LibAravis.ArvDevice}; owns::Bool=false)
     return obj
 end
 
+function _safe_string_feature(device::Device, feature::AbstractString)
+    try
+        return string_feature_value(device, feature)
+    catch
+        return ""
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", device::Device)
+    vendor = _safe_string_feature(device, "DeviceVendorName")
+    model = _safe_string_feature(device, "DeviceModelName")
+    serial = _safe_string_feature(device, "DeviceSerialNumber")
+    id = _safe_string_feature(device, "DeviceID")
+    println(io, "Device: ", id)
+    println(io, "  Vendor: ", vendor)
+    println(io, "  Model: ", model)
+    println(io, "  Serial Number: ", serial)
+end
+
 function Stream(device::Device)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     ptr = LibAravis.arv_device_create_stream_full(device.handle, C_NULL, C_NULL, C_NULL, err)

@@ -11,6 +11,24 @@ function Stream(handle::Ptr{LibAravis.ArvStream}; owns::Bool=false)
     return obj
 end
 
+function Base.show(io::IO, ::MIME"text/plain", stream::Stream)
+    if stream.handle == C_NULL
+        print(io, "Stream: <closed>")
+        return
+    end
+    completed = 0
+    failures = 0
+    underruns = 0
+    try
+        completed, failures, underruns = get_statistics(stream)
+    catch
+    end
+    println(io, "Stream")
+    println(io, "  Completed: ", completed)
+    println(io, "  Failures: ", failures)
+    println(io, "  Underruns: ", underruns)
+end
+
 function Base.close(stream::Stream)
     if stream.handle != C_NULL
         GLib.g_object_unref(Ptr{Cvoid}(stream.handle))
@@ -23,6 +41,12 @@ mutable struct BufferPool
     stream::Stream
     buffers::Vector{Buffer}
     buffer_size::Int
+end
+
+function Base.show(io::IO, ::MIME"text/plain", pool::BufferPool)
+    println(io, "BufferPool")
+    println(io, "  Buffers: ", length(pool.buffers))
+    println(io, "  Buffer Size: ", pool.buffer_size)
 end
 
 function _buffer_from_ptr(pool::BufferPool, ptr::Ptr{LibAravis.ArvBuffer})

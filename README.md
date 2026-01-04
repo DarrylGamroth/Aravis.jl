@@ -21,7 +21,7 @@ stream = Stream(cam)
 pool = BufferPool(stream, 8, payload(cam))
 start_acquisition!(cam)
 
-timeout_ns = 1_000_000_000
+timeout_ns = UInt64(1_000_000_000)
 buf = timeout_pop_buffer!(pool, timeout_ns)
 buf !== nothing && queue_buffer!(pool, buf)
 

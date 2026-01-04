@@ -12,6 +12,18 @@ function Buffer(handle::Ptr{LibAravis.ArvBuffer}; owns::Bool=false)
     return obj
 end
 
+function Base.show(io::IO, ::MIME"text/plain", buffer::Buffer)
+    if buffer.handle == C_NULL
+        print(io, "Buffer: <closed>")
+        return
+    end
+    println(io, "Buffer")
+    println(io, "  Status: ", status(buffer))
+    println(io, "  Payload Type: ", payload_type(buffer))
+    println(io, "  Frame ID: ", frame_id(buffer))
+    println(io, "  Timestamp: ", timestamp(buffer))
+end
+
 function Buffer(size::Integer)
     ptr = LibAravis.arv_buffer_new_allocate(size)
     return Buffer(ptr; owns=true)
