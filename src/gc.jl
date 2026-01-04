@@ -15,21 +15,18 @@ mutable struct GcNode{T} <: ArvObject
     handle::Ptr{LibAravis.ArvGcNode}
     owns::Bool
     string_buffer::Vector{UInt8}
+
+    function GcNode(handle::Ptr{LibAravis.ArvGcNode}; owns::Bool=false)
+        _check_ptr(handle, "ArvGcNode")
+        T = _gcnode_detect_type(handle)
+        obj = new{T}(handle, owns, Vector{UInt8}(undef, 64))
+        _register_finalizer!(obj)
+        return obj
+    end
+
 end
 
-function GcNode(handle::Ptr{LibAravis.ArvGcNode}; owns::Bool=false)
-    _check_ptr(handle, "ArvGcNode")
-    T = _gcnode_detect_type(handle)
-    obj = GcNode{T}(handle, owns, Vector{UInt8}(undef, 64))
-    _register_finalizer!(obj)
-    return obj
-end
-
-function GcNode(::Type{T}, node::GcNode) where {T}
-    gtype, typename = _gcnode_type_info(T)
-    _require_node_type(node, gtype, typename)
-    return GcNode{T}(node.handle, false, Vector{UInt8}(undef, 64))
-end
+Base.eltype(::GcNode{T}) where {T} = T
 
 function genicam(device::Device)
     ptr = LibAravis.arv_device_get_genicam(device.handle)
@@ -181,32 +178,6 @@ end
 
 function value!(node::GcNode{String}, v::AbstractString)
     _string_value_unsafe!(node, v)
-    return nothing
-end
-
-function _gcnode_type_info(::Type{Bool})
-    return (LibAravis.arv_gc_boolean_get_type(), "ArvGcBoolean")
-end
-
-function _gcnode_type_info(::Type{T}) where {T<:Integer}
-    return (LibAravis.arv_gc_integer_get_type(), "ArvGcInteger")
-end
-
-function _gcnode_type_info(::Type{T}) where {T<:AbstractFloat}
-    return (LibAravis.arv_gc_float_get_type(), "ArvGcFloat")
-end
-
-function _gcnode_type_info(::Type{String})
-    return (LibAravis.arv_gc_string_get_type(), "ArvGcString")
-end
-
-function _gcnode_type_info(::Type)
-    throw(ArgumentError("Unsupported GenICam node type"))
-end
-
-function _require_node_type(node::GcNode, gtype::LibAravis.GType, typename::AbstractString)
-    ok = LibAravis.g_type_check_instance_is_a(Ptr{LibAravis.GTypeInstance}(node.handle), gtype)
-    ok != 0 || throw(ArgumentError("GcNode is not $typename"))
     return nothing
 end
 
