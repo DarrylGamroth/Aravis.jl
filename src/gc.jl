@@ -134,15 +134,15 @@ function value(node::GcNode, ::Type{String})
 end
 
 function value(node::GcNode, ::Type{Bool})
-    return bool_value(node)
+    return value(node::GcNode{Bool})
 end
 
 function value(node::GcNode, ::Type{T}) where {T<:Integer}
-    return convert(T, integer_value(node))
+    return convert(T, value(node::GcNode{Int64}))
 end
 
 function value(node::GcNode, ::Type{T}) where {T<:AbstractFloat}
-    return convert(T, float_value(node))
+    return convert(T, value(node::GcNode{Float64}))
 end
 
 function value(node::GcNode{Bool})
@@ -204,14 +204,6 @@ function _integer_value_unsafe!(node::GcNode, value::Integer)
     return nothing
 end
 
-function integer_value(node::GcNode{<:Integer})
-    return _integer_value_unsafe(node)
-end
-
-function integer_value!(node::GcNode{<:Integer}, value::Integer)
-    return _integer_value_unsafe!(node, value)
-end
-
 function Base.minimum(node::GcNode{<:Integer})
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
     value = LibAravis.arv_gc_integer_get_min(Ptr{LibAravis.ArvGcInteger}(node.handle), err)
@@ -245,14 +237,6 @@ function _float_value_unsafe!(node::GcNode, value::Real)
     LibAravis.arv_gc_float_set_value(Ptr{LibAravis.ArvGcFloat}(node.handle), Float64(value), err)
     _throw_if_gerror!(err)
     return nothing
-end
-
-function float_value(node::GcNode{<:AbstractFloat})
-    return _float_value_unsafe(node)
-end
-
-function float_value!(node::GcNode{<:AbstractFloat}, value::Real)
-    return _float_value_unsafe!(node, value)
 end
 
 function Base.minimum(node::GcNode{<:AbstractFloat})
@@ -290,13 +274,6 @@ function _bool_value_unsafe!(node::GcNode, value::Bool)
     return nothing
 end
 
-function bool_value(node::GcNode{Bool})
-    return _bool_value_unsafe(node)
-end
-
-function bool_value!(node::GcNode{Bool}, value::Bool)
-    return _bool_value_unsafe!(node, value)
-end
 
 function _string_value_unsafe(node::GcNode)
     err = Ref{Ptr{LibAravis.GError}}(C_NULL)
@@ -313,13 +290,6 @@ function _string_value_unsafe!(node::GcNode, value::AbstractString)
     return nothing
 end
 
-function string_value(node::GcNode{String})
-    return _string_value_unsafe(node)
-end
-
-function string_value!(node::GcNode{String}, value::AbstractString)
-    return _string_value_unsafe!(node, value)
-end
 
 
 Base.getindex(genicam::Gc, name::AbstractString) = node(genicam, name)
@@ -329,8 +299,8 @@ Base.getindex(node::GcNode) = value(node)
 Base.getindex(node::GcNode, ::Type{T}) where {T} = value(node, T)
 Base.setindex!(node::GcNode, v) = (value!(node, v); node)
 
-Base.convert(::Type{Bool}, node::GcNode{Bool}) = bool_value(node)
-Base.convert(::Type{T}, node::GcNode{<:Integer}) where {T<:Integer} = convert(T, integer_value(node))
-Base.convert(::Type{T}, node::GcNode{<:AbstractFloat}) where {T<:AbstractFloat} = convert(T, float_value(node))
+Base.convert(::Type{Bool}, node::GcNode{Bool}) = value(node)
+Base.convert(::Type{T}, node::GcNode{<:Integer}) where {T<:Integer} = convert(T, value(node))
+Base.convert(::Type{T}, node::GcNode{<:AbstractFloat}) where {T<:AbstractFloat} = convert(T, value(node))
 Base.convert(::Type{String}, node::GcNode{Any}) = as_string(node)
 Base.convert(::Type{String}, node::GcNode{T}) where {T} = string(value(node))

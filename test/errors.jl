@@ -8,8 +8,8 @@
 
         gc = genicam(dev)
         width_node = node(gc, "Width")
-        @test_throws MethodError string_value(width_node)
-        @test width_node[Int] == integer_value(width_node)
+        @test_throws MethodError value!(width_node, "bad")
+        @test width_node[Int] == value(width_node)
     finally
         close(cam)
     end

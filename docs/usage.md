@@ -51,7 +51,7 @@ close(cam)
 dev = device(cam)
 gc = genicam(dev)
 node_width = node(gc, "Width")
-width = integer_value(node_width)
+width = value(node_width)
 ```
 
 ## Thread-safety and deterministic behavior

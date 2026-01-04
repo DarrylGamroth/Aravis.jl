@@ -18,7 +18,7 @@
         gc = genicam(dev)
         width_node = node(gc, "Width")
         @test is_available(width_node)
-        @test integer_value(width_node) == width
+        @test value(width_node) == width
         @test width_node[Int] == width
         value!(width_node, width)
     finally
