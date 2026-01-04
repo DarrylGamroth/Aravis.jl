@@ -1,0 +1,10 @@
+name = "Aravis"
+uuid = "ee304b73-0f67-4038-8e67-62078cd066f9"
+version = "0.1.0"
+authors = ["Darryl Gamroth <dgamroth@rubus.ca>"]
+
+[deps]
+Aravis_jll = "1ca07fb7-a562-5e16-809d-46c0b3e3215e"
+
+[compat]
+Aravis_jll = "0.8.35"
