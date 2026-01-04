@@ -25,6 +25,7 @@ end
             _acquire_cycle!(pool, timeout_ns)
         end
 
+        _measure_acquire_allocs(pool, timeout_ns, 1)
         alloc = _measure_acquire_allocs(pool, timeout_ns, 5)
         @test alloc == 0
     finally
